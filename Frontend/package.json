@@ -1,0 +1,60 @@
+{
+  "name": "projectservice",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@mapbox/mapbox-gl-geocoder": "^5.0.3",
+    "@stomp/stompjs": "^7.1.1",
+    "axios": "^1.10.0",
+    "bootstrap": "^5.3.3",
+    "cra-template": "1.2.0",
+    "framer-motion": "^12.23.12",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.515.0",
+    "mapbox-gl": "^3.9.2",
+    "projectservice": "file:",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-map-gl": "^7.1.8",
+    "react-map-gl-geocoder": "^2.2.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.1.1",
+    "react-scripts": "5.0.1",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
+    "url": "^0.11.4",
+    "web-vitals": "^4.2.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "react-app-rewired": "^2.2.1",
+    "tailwindcss": "^3.4.17"
+  }
+}
