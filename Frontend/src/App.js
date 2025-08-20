@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import LibraryPage from "./pages/Librarypage";
 import LandingPage from './pages/LandingPage';
 import GamificationPage from './pages/Gamificationpage';
+import NewsPageApi from './pages/NewsPageApi';
 
 
 function App() {
@@ -23,6 +24,8 @@ function App() {
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/games" element={<GamificationPage />} /> 
+        <Route path="/newsapi" element={<NewsPageApi />} /> 
+        
       </Routes>
     </Router>
   );
