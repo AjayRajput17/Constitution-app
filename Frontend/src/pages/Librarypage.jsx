@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -20,11 +20,19 @@ import {
   Image,
   Clock
 } from "lucide-react";
+import { libraryAPI } from '../utils/api';
 
 const LibraryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [resources, setResources] = useState([]);
+  const [featuredResources, setFeaturedResources] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
 
   const categories = [
     { id: 'all', name: 'All Resources', icon: Library, count: 1250 },
@@ -46,150 +54,100 @@ const LibraryPage = () => {
     { id: 'guides', name: 'Study Guides', count: 59 }
   ];
 
-  const featuredResources = [
-    {
-      id: 1,
-      title: "The Constitution of India - Complete Text",
-      description: "Complete constitutional text with all amendments, explained with simplified language and expert commentary for better understanding.",
-      type: "book",
-      category: "constitution",
-      author: "Constitutional Assembly of India",
-      publishedDate: "2024-01-15",
-      pages: 395,
-      downloadCount: "25.4K",
-      rating: 4.9,
-      language: "Hindi/English",
-      difficulty: "Intermediate",
-      tags: ["Constitution", "Complete Text", "Official"],
-      thumbnail: "https://images.unsplash.com/photo-1589994965851-a8f479c573a9?w=300&h=400&fit=crop",
-      isBookmarked: true,
-      isPremium: false
-    },
-    {
-      id: 2,
-      title: "Fundamental Rights Explained with Case Studies",
-      description: "Comprehensive analysis of Articles 12-35 with landmark Supreme Court cases and practical applications in daily life.",
-      type: "guide",
-      category: "fundamental-rights", 
-      author: "Dr. Priya Sharma",
-      publishedDate: "2024-01-10",
-      pages: 128,
-      downloadCount: "18.7K",
-      rating: 4.8,
-      language: "English/Marathi",
-      difficulty: "Beginner",
-      tags: ["Rights", "Case Studies", "Practical"],
-      thumbnail: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=300&h=400&fit=crop",
-      isBookmarked: false,
-      isPremium: false
-    },
-    {
-      id: 3,
-      title: "Understanding Article 21: Right to Life",
-      description: "Deep dive into the most fundamental right with historical context, legal interpretations, and modern applications.",
-      type: "article",
-      category: "fundamental-rights",
-      author: "Justice (Retd.) Ramesh Gupta",
-      publishedDate: "2024-01-08",
-      pages: 45,
-      downloadCount: "32.1K",
-      rating: 4.9,
-      language: "Hindi/English",
-      difficulty: "Intermediate",
-      tags: ["Article 21", "Rights", "Legal Analysis"],
-      thumbnail: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=300&h=400&fit=crop",
-      isBookmarked: true,
-      isPremium: false
-    }
-  ];
 
-  const allResources = [
-    {
-      id: 4,
-      title: "Constitutional Amendments Timeline",
-      description: "Visual timeline of all 105 constitutional amendments with explanations of their impact and significance.",
-      type: "infographic",
-      category: "amendments",
-      author: "Nyaya Design Team",
-      publishedDate: "2024-01-05",
-      downloadCount: "15.3K",
-      rating: 4.7,
-      language: "Hindi/English",
-      difficulty: "Beginner",
-      tags: ["Timeline", "Amendments", "Visual"],
-      thumbnail: "https://images.unsplash.com/photo-1584454584988-e7e21d9b2e19?w=300&h=400&fit=crop",
-      isBookmarked: false,
-      isPremium: false
-    },
-    {
-      id: 5,
-      title: "Landmark Supreme Court Cases Collection",
-      description: "Compilation of 50 most important Supreme Court judgments that shaped constitutional interpretation.",
-      type: "cases",
-      category: "case-law",
-      author: "Legal Research Team",
-      publishedDate: "2024-01-03",
-      downloadCount: "22.8K",
-      rating: 4.8,
-      language: "English",
-      difficulty: "Advanced",
-      tags: ["Supreme Court", "Landmark Cases", "Judgments"],
-      thumbnail: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=300&h=400&fit=crop",
-      isBookmarked: true,
-      isPremium: true
-    },
-    {
-      id: 6,
-      title: "Directive Principles Study Guide",
-      description: "Simplified explanation of Articles 36-51 with examples of how they guide government policy and legislation.",
-      type: "guide",
-      category: "constitution",
-      author: "Prof. Anita Desai",
-      publishedDate: "2023-12-28",
-      downloadCount: "19.6K",
-      rating: 4.6,
-      language: "Hindi/English/Marathi",
-      difficulty: "Beginner",
-      tags: ["DPSP", "Policy", "Guidelines"],
-      thumbnail: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300&h=400&fit=crop",
-      isBookmarked: false,
-      isPremium: false
-    },
-    {
-      id: 7,
-      title: "Parliament Structure and Functions",
-      description: "Detailed guide on how Indian Parliament works, including Lok Sabha, Rajya Sabha, and legislative procedures.",
-      type: "document",
-      category: "government",
-      author: "Parliamentary Research Service",
-      publishedDate: "2023-12-25",
-      downloadCount: "16.9K",
-      rating: 4.7,
-      language: "Hindi/English",
-      difficulty: "Intermediate",
-      tags: ["Parliament", "Legislation", "Government"],
-      thumbnail: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=300&h=400&fit=crop",
-      isBookmarked: false,
-      isPremium: false
-    },
-    {
-      id: 8,
-      title: "Constitutional Rights Infographic Series",
-      description: "Beautiful visual representations of all fundamental rights with easy-to-understand illustrations and examples.",
-      type: "infographic",
-      category: "fundamental-rights",
-      author: "Visual Learning Team",
-      publishedDate: "2023-12-20",
-      downloadCount: "28.4K",
-      rating: 4.9,
-      language: "Visual/Multilingual",
-      difficulty: "Beginner",
-      tags: ["Visual", "Rights", "Educational"],
-      thumbnail: "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=300&h=400&fit=crop",
-      isBookmarked: true,
-      isPremium: false
+
+  // Fetch library statistics
+  const fetchStats = async () => {
+    try {
+      const response = await libraryAPI.getStats();
+      console.log('Stats response:', response);
+      setStats(response.data.data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
-  ];
+  };
+
+  // Fetch featured resources
+  const fetchFeaturedResources = async () => {
+    try {
+      const response = await libraryAPI.getFeatured();
+      console.log('Featured response:', response);
+      setFeaturedResources(response.data.data);
+    } catch (error) {
+      console.error('Error fetching featured resources:', error);
+    }
+  };
+
+  // Fetch all resources with filtering
+  const fetchResources = async (page = 1, reset = false) => {
+    try {
+      setLoading(true);
+      const params = {
+        page,
+        limit: 20,
+        category: selectedCategory !== 'all' ? selectedCategory : undefined,
+        type: selectedType !== 'all' ? selectedType : undefined,
+        search: searchQuery || undefined
+      };
+
+      console.log('Fetching resources with params:', params);
+      const response = await libraryAPI.getResources(params);
+      console.log('Resources response:', response);
+      
+      if (reset) {
+        setResources(response.data.data);
+        setCurrentPage(1);
+      } else {
+        setResources(prev => [...prev, ...response.data.data]);
+      }
+      
+      setHasMore(response.data.pagination.hasNextPage);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+      setError('Failed to fetch resources');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load more resources
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchResources(nextPage, false);
+    }
+  };
+
+  // Search resources
+  const handleSearch = () => {
+    fetchResources(1, true);
+  };
+
+  // Filter resources
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    fetchResources(1, true);
+  };
+
+  const handleTypeChange = (type) => {
+    setSelectedType(type);
+    fetchResources(1, true);
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchStats();
+    fetchFeaturedResources();
+    fetchResources(1, true);
+  }, []);
+
+  // Refetch when filters change
+  useEffect(() => {
+    if (currentPage === 1) {
+      fetchResources(1, true);
+    }
+  }, [selectedCategory, selectedType]);
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
@@ -212,14 +170,7 @@ const LibraryPage = () => {
     }
   };
 
-  const filteredResources = [...featuredResources, ...allResources].filter(resource => {
-    const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
-    const matchesType = selectedType === 'all' || resource.type === selectedType;
-    const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         resource.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesType && matchesSearch;
-  });
+  const filteredResources = [...featuredResources, ...resources];
 
   const ResourceCard = ({ resource }) => {
     const TypeIcon = getTypeIcon(resource.type);
@@ -364,6 +315,7 @@ const LibraryPage = () => {
                   placeholder="Search resources..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent w-64"
                 />
               </div>
@@ -385,7 +337,7 @@ const LibraryPage = () => {
                 <BookOpen className="w-5 h-5 text-orange-600" />
               </div>
               <div>
-                <div className="text-xl font-bold text-slate-800">1,250+</div>
+                <div className="text-xl font-bold text-slate-800">{stats.totalResources || 0}+</div>
                 <div className="text-sm text-slate-600">Total Resources</div>
               </div>
             </div>
@@ -397,7 +349,7 @@ const LibraryPage = () => {
                 <Download className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <div className="text-xl font-bold text-slate-800">500K+</div>
+                <div className="text-xl font-bold text-slate-800">{stats.totalDownloads ? `${(stats.totalDownloads / 1000).toFixed(1)}K+` : '0K+'}</div>
                 <div className="text-sm text-slate-600">Downloads</div>
               </div>
             </div>
@@ -421,7 +373,7 @@ const LibraryPage = () => {
                 <Star className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <div className="text-xl font-bold text-slate-800">4.8</div>
+                <div className="text-xl font-bold text-slate-800">{stats.avgRating || 0}</div>
                 <div className="text-sm text-slate-600">Avg Rating</div>
               </div>
             </div>
@@ -437,7 +389,7 @@ const LibraryPage = () => {
               return (
                 <button
                   key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategoryChange(category.id)}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
                     selectedCategory === category.id
                       ? 'bg-gradient-to-r from-orange-500 to-green-500 text-white border-transparent'
@@ -464,7 +416,7 @@ const LibraryPage = () => {
             {resourceTypes.map((type) => (
               <button
                 key={type.id}
-                onClick={() => setSelectedType(type.id)}
+                onClick={() => handleTypeChange(type.id)}
                 className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
                   selectedType === type.id
                     ? 'bg-slate-800 text-white border-slate-800'
@@ -495,17 +447,44 @@ const LibraryPage = () => {
         </div>
 
         {/* Resource Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredResources.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} />
-          ))}
-        </div>
+        {loading && resources.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading resources...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => fetchResources(1, true)}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : filteredResources.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-slate-600">No resources found. Try adjusting your filters.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredResources.map((resource) => (
+              <ResourceCard key={resource.id} resource={resource} />
+            ))}
+          </div>
+        )}
 
         {/* Load More */}
         <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-gradient-to-r from-orange-500 to-green-500 text-white rounded-lg hover:from-orange-600 hover:to-green-600 transition-all duration-200 font-medium">
-            Load More Resources
-          </button>
+          {hasMore && (
+            <button 
+              onClick={loadMore}
+              disabled={loading}
+              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-green-500 text-white rounded-lg hover:from-orange-600 hover:to-green-600 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Loading...' : 'Load More Resources'}
+            </button>
+          )}
         </div>
 
         {/* Featured Collections */}

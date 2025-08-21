@@ -11,10 +11,13 @@ import {
   Award,
   Shield
 } from "lucide-react";
+import { authAPI } from '../utils/api';
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,11 +32,52 @@ const LoginPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
-  const handleSubmit = () => {
-    // Handle login/signup logic here
-    console.log('Form submitted:', formData);
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!isLogin && formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      if (!isLogin && !formData.agreeToTerms) {
+        setError('Please agree to the terms and conditions');
+        setLoading(false);
+        return;
+      }
+
+      let response;
+      if (isLogin) {
+        response = await authAPI.login({
+          email: formData.email,
+          password: formData.password
+        });
+      } else {
+        response = await authAPI.register({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password
+        });
+      }
+
+      // Store token and user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // Redirect to home page or dashboard
+      window.location.href = '/';
+    } catch (err) {
+      setError(err.response?.data?.message || 'An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const features = [
@@ -85,20 +129,27 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Form Container */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
-          {/* Form Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-800 mb-2">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h2>
-            <p className="text-slate-600">
-              {isLogin 
-                ? 'Continue your constitutional learning journey' 
-                : 'Start your journey to constitutional literacy'
-              }
-            </p>
-          </div>
+                  {/* Form Container */}
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            {/* Form Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-slate-800 mb-2">
+                {isLogin ? 'Welcome Back' : 'Create Account'}
+              </h2>
+              <p className="text-slate-600">
+                {isLogin 
+                  ? 'Continue your constitutional learning journey' 
+                  : 'Start your journey to constitutional literacy'
+                }
+              </p>
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
           {/* Social Login */}
           <div className="space-y-3 mb-6">
@@ -247,10 +298,20 @@ const LoginPage = () => {
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-orange-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-orange-600 hover:to-green-700 transition-all duration-200 font-semibold flex items-center justify-center group"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-orange-600 hover:to-green-700 transition-all duration-200 font-semibold flex items-center justify-center group disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  {isLogin ? 'Signing In...' : 'Creating Account...'}
+                </div>
+              ) : (
+                <>
+                  {isLogin ? 'Sign In' : 'Create Account'}
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </button>
           </div>
 

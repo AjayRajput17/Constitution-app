@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Brain, Sparkles, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { chatAPI } from '../utils/api';
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([
@@ -38,20 +39,8 @@ const ChatPage = () => {
     setIsTyping(true);
 
     try {
-      // FIX: Changed the relative URL to an absolute URL for the fetch request.
-      const response = await fetch('http://localhost:5000/api/chatbot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: inputMessage }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const response = await chatAPI.sendMessage(inputMessage);
+      const data = response.data;
       
       const botResponse = {
         id: Date.now() + 1,

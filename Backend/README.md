@@ -1,65 +1,121 @@
-# Node.js Backend Project
+# Constitution App Backend
 
 ## Overview
+Backend API for the Constitution App with user management, chatbot integration, and library resources.
 
-This is a Node.js backend project structured to provide a clean and organized way to build RESTful APIs using Express. The project is designed to be modular, making it easy to maintain and extend.
+## Features
+- User authentication and management
+- Chatbot API integration
+- Library resources management with MongoDB
+- RESTful API endpoints
 
-## Project Structure
-
-```
-node-backend-project
-├── src
-│   ├── controllers        # Contains business logic for routes
-│   ├── routes             # Defines API routes
-│   ├── models             # Contains data models (e.g., Mongoose schemas)
-│   ├── middleware         # Middleware functions for request handling
-│   └── app.js             # Entry point of the application
-├── package.json           # Project metadata and dependencies
-└── README.md              # Project documentation
-```
-
-## Getting Started
+## Setup
 
 ### Prerequisites
-
-- Node.js (version 14 or higher)
-- npm (Node Package Manager)
+- Node.js (v14 or higher)
+- MongoDB Atlas account
 
 ### Installation
-
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd node-backend-project
-   ```
-
-3. Install the dependencies:
-   ```
+1. Install dependencies:
+   ```bash
    npm install
    ```
 
-### Running the Application
+2. Create `.env` file with your MongoDB URI:
+   ```env
+   MONGO_URI=mongodb+srv://vedant:vedant@cluster0.id8jl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+   PORT=5000
+   ```
 
-To start the application, run the following command:
+3. Seed the database with sample library data:
+   ```bash
+   npm run seed
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## API Endpoints
+
+### Library API (`/api/library`)
+
+#### Get All Resources
 ```
-npm start
+GET /api/library/resources
 ```
-The server will start on `http://localhost:3000` by default.
+Query parameters:
+- `page` (default: 1) - Page number for pagination
+- `limit` (default: 20) - Number of resources per page
+- `category` - Filter by category (constitution, fundamental-rights, case-law, etc.)
+- `type` - Filter by type (articles, books, documents, etc.)
+- `search` - Search in title, description, and tags
+- `difficulty` - Filter by difficulty level
+- `language` - Filter by language
+- `featured` - Filter featured resources (true/false)
+- `sortBy` - Sort field (default: createdAt)
+- `sortOrder` - Sort order (asc/desc, default: desc)
 
-### API Endpoints
+#### Get Featured Resources
+```
+GET /api/library/featured?limit=6
+```
 
-- **GET /api/users** - Retrieve a list of users
-- **POST /api/users** - Create a new user
-- **PUT /api/users/:id** - Update an existing user
+#### Get Resource by ID
+```
+GET /api/library/resources/:id
+```
 
-### Contributing
+#### Get Library Statistics
+```
+GET /api/library/stats
+```
 
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
+#### Search Resources
+```
+GET /api/library/search?q=search_term&limit=10
+```
 
-### License
+### User API (`/api/users`)
+- User registration and authentication endpoints
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Chatbot API (`/api/chatbot`)
+- Chatbot integration endpoints
+
+## Database Models
+
+### LibraryResource
+- `title` - Resource title
+- `description` - Resource description
+- `type` - Resource type (articles, books, documents, infographics, cases, guides)
+- `category` - Resource category (constitution, fundamental-rights, case-law, amendments, government, legal-guides)
+- `author` - Resource author
+- `publishedDate` - Publication date
+- `pages` - Number of pages (optional)
+- `downloadCount` - Download count
+- `rating` - User rating (0-5)
+- `language` - Available languages
+- `difficulty` - Difficulty level (Beginner, Intermediate, Advanced)
+- `tags` - Array of tags
+- `thumbnail` - Thumbnail image URL
+- `isBookmarked` - Bookmark status
+- `isPremium` - Premium content flag
+- `featured` - Featured resource flag
+- `fileUrl` - File download URL (optional)
+
+## Development
+
+### Scripts
+- `npm run dev` - Start development server with nodemon
+- `npm start` - Start production server
+- `npm run seed` - Seed database with sample data
+
+### Environment Variables
+- `MONGO_URI` - MongoDB connection string
+- `PORT` - Server port (default: 5000)
+
+## Database Indexes
+- Text search index on title, description, and tags
+- Compound index on category and type
+- Index on featured flag for better performance
